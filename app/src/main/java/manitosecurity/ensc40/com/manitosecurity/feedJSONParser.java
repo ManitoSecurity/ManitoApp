@@ -28,8 +28,6 @@ public class feedJSONParser {
             e.printStackTrace();
         }
 
-        //Log.d(TAG, "parse, about to return " + jObject.toString());
-
         // Invoking getEvent with the array of json object
         // where each json object represent a event
         return getEvents(jEvents);
@@ -39,8 +37,6 @@ public class feedJSONParser {
         int eventCount = jEvents.length();
         List<HashMap<String, Object>> eventList = new ArrayList<HashMap<String, Object>>();
         HashMap<String, Object> event = null;
-
-        //Log.d(TAG, "in getEvents");
 
         // Taking each event, parses and adds to list object
         for (int i = 0; i < eventCount; i++) {
@@ -80,8 +76,11 @@ public class feedJSONParser {
         try {
             //m_name = jEvent.getString("name");
             m_time_stamp   = jEvent.getString("timestamp");
-            m_time         = m_time_stamp.substring(11, 19);
+            m_time         = m_time_stamp.substring(11, 16);
             m_date         = m_time_stamp.substring(0, 10);
+
+            m_time = to_CivilianTime(m_time);
+
 
             if(m_lastDate == m_date){
                 separate = false;
@@ -121,5 +120,27 @@ public class feedJSONParser {
         //Log.d(TAG, "getEvent about to return");
 
         return event;
+    }
+
+    private String to_CivilianTime(String time){
+        StringBuilder time_finished = new StringBuilder();
+        String s_hours = time.substring(0, 2);
+
+        int i_hours = Integer.parseInt(s_hours);
+
+        if(i_hours > 12){
+            i_hours -= 12;
+            if(i_hours < 10){
+                time_finished.append("0");}
+            time_finished.append(i_hours);
+            time_finished.append(":");
+            time_finished.append(time.substring(3));
+            time_finished.append(" pm");
+        }else{
+            time_finished.append(time);
+            time_finished.append(" am");
+        }
+
+        return time_finished.toString();
     }
 }

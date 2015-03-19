@@ -22,14 +22,25 @@
         android:layout_below="@id/date"
         android:layout_centerVertical="true"
         android:padding="5dp"
+        android:layout_marginLeft="5dp"
         android:layout_marginRight="15dp"/>
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="100dp"
+        android:id="@+id/contact_name"
+        android:layout_toRightOf="@id/contact_picture">
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:id="@+id/left_column"
         android:minWidth="100dp"
-        android:layout_below="@id/date"
+        android:layout_below="@id/contact_name"
         android:layout_toRightOf="@id/contact_picture">
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -42,7 +53,6 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:padding="5dp"/>
-
             <TextView
                 android:id="@+id/contact_home_text"
                 android:layout_width="wrap_content"
@@ -50,44 +60,13 @@
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@id/contact_home_picture"
                 android:text="Home"/>
-        </RelativeLayout>
+            </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="100dp"
-            android:id="@+id/contact_name"
+            android:id="@+id/contact_armed"
             android:layout_below="@id/contact_home">
-            <ImageView
-                android:id="@+id/contact_name_picture"
-                android:src="@drawable/name_1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:padding="5dp"/>
-            <TextView
-                android:id="@+id/contact_name_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:maxLength="11"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:layout_toRightOf="@id/contact_name_picture"
-                android:text="Collin"/>
-        </RelativeLayout>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/right_column"
-        android:layout_below="@id/date"
-        android:layout_toRightOf="@id/left_column">
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/contact_armed">
             <ImageView
                 android:id="@+id/contact_armed_picture"
                 android:src="@drawable/armed_on"
@@ -102,28 +81,41 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@id/contact_armed_picture"
-                android:text="//////"/>
+                android:text="Disarmed"/>
         </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/right_column"
+        android:layout_marginBottom="11dp"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignBottom="@id/left_column">
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="100dp"
-            android:id="@+id/contact_time"
-            android:layout_below="@id/contact_armed">
-            <ImageView
-                android:id="@+id/contact_time_picture"
-                android:src="@drawable/time_1"
+            android:id="@+id/contact_time">
+            <TextView
+                android:id="@+id/contact_name_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:padding="5dp"/>
+                android:textColor="@color/light_2"
+                android:layout_marginRight="7dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="Collin"/>
             <TextView
                 android:id="@+id/contact_time_text"
+                android:layout_toRightOf="@id/contact_name_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/contact_time_picture"
+                android:textColor="@color/light_2"
+                android:gravity="end"
                 android:text="12:30 pm"/>
         </RelativeLayout>
     </RelativeLayout>

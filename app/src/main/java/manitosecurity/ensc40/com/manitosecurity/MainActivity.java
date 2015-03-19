@@ -8,13 +8,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -38,9 +36,7 @@ public class MainActivity extends Activity {
     private ImageView emptyFeed;
     private ListView mListView;
     private SharedPreferences settings;
-    private Animation slideUp, spin, slideDown;
-    private ImageView mRefreshIcon;
-    private Button mRefreshButton;
+    private SwipeRefreshLayout swipeLayout;
     private DownloadTask downloadTask = new DownloadTask();
 
     SharedPreferences.Editor editor;
@@ -72,16 +68,15 @@ public class MainActivity extends Activity {
         setUpUI();
 
 
-        //strUrl = "https://data.sparkfun.com/output/5JZO9K83dRU0KlA39EGZ.json";
-        strUrl = "https://data.sparkfun.com/output/YGbWzd9amwuzd1KwJjDK.json";
+        strUrl = "https://data.sparkfun.com/output/5JZO9K83dRU0KlA39EGZ.json";
+        //strUrl = "https://data.sparkfun.com/output/YGbWzd9amwuzd1KwJjDK.json";
 
-
-        // Creating a new non-ui thread task to download json data
-
-        mRefreshButton.setText(R.string.refreshing);
-        mRefreshButton.setBackgroundColor(getResources().getColor(R.color.orange));
-        setAnimationMiddle(spin, mRefreshIcon, false);
-        mRefreshIcon.startAnimation(slideUp);
+        swipeLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeLayout.setRefreshing(true);
+            }
+        });
 
         // Starting the download process
         downloadTask.execute(strUrl);
@@ -132,11 +127,20 @@ public class MainActivity extends Activity {
         emptyFeed = (ImageView) findViewById(R.id.empty_graphic);
         emptyFeed.setVisibility(View.INVISIBLE);
         imageState = (ImageButton) findViewById(R.id.stateImage);
-        mRefreshButton = (Button) findViewById(R.id.refresh_button);
-        mRefreshIcon = (ImageView) findViewById(R.id.refresh_icon);
-        mRefreshIcon.setVisibility(View.INVISIBLE);
 
-        setUpButton(mRefreshButton);
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                downloadTask = new DownloadTask();
+                strUrl = "https://data.sparkfun.com/output/5JZO9K83dRU0KlA39EGZ.json";
+                downloadTask.execute(strUrl);
+            }
+        });
+        swipeLayout.setColorScheme(
+                R.color.green,
+                R.color.orange,
+                R.color.dark);
 
         if (!settings.getBoolean("armState", false)){		//if setting is off, button should be off
             imageState.setImageResource(R.drawable.button_off);
@@ -160,30 +164,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        mRefreshButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Send a message using content of the edit text widget
-                View view = v.getRootView();
-                if (null != view) {
-                    Log.d(TAG, "refresh button pushed " + strUrl);
-                    mRefreshButton.setText(R.string.refreshing);
-                    mRefreshButton.setBackgroundColor(getResources().getColor(R.color.orange));
-                    setAnimationMiddle(spin, mRefreshIcon, false);
-                    mRefreshIcon.startAnimation(slideUp);
-                    downloadTask = new DownloadTask();
-                    strUrl = "https://data.sparkfun.com/output/5JZO9K83dRU0KlA39EGZ.json";
-                    downloadTask.execute(strUrl);
-                }
-            }
-        });
-
-        //Set up animation
-        slideUp     = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
-        slideDown   = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
-        spin        = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.spin);
-        setAnimationEnd(slideDown, mRefreshIcon);
-        setAnimationStart(slideUp, mRefreshIcon);
-        setAnimationMiddle(spin, mRefreshIcon, false);
 
         Log.d(TAG, "set up ui");
     }
@@ -260,8 +240,8 @@ public class MainActivity extends Activity {
                 listViewLoaderTask.execute(result);
             }
 
+            swipeLayout.setRefreshing(false);
 
-            setAnimationMiddle(spin, mRefreshIcon, true);
         }
     }
 
@@ -383,64 +363,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    /**
-     * Set up Refresh Button
-     */
-    private void setUpButton(Button b){
-        b.setText(R.string.refresh);
-        b.setTextColor(getResources().getColor(R.color.white));
-        b.setBackgroundColor(getResources().getColor(R.color.green));
-    }
 
-
-    private void setAnimationStart(Animation anim, final ImageView v){
-        anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                v.setVisibility(View.VISIBLE);
-            }
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                v.startAnimation(spin);
-            }
-
-
-        });
-    }
-    //Repeat animation, then slide down if done
-    private void setAnimationMiddle(Animation anim, final ImageView v, final boolean finished){
-        anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-            @Override
-            public void onAnimationStart(Animation animation) {}
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if(finished){
-                    v.getAnimation().cancel();
-                    v.startAnimation(slideDown);
-                }
-                else
-                    v.startAnimation(spin);
-            }
-
-        });
-    }
-
-    private void setAnimationEnd(Animation anim, final ImageView v){
-        anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                v.setVisibility(View.INVISIBLE);
-                setUpButton(mRefreshButton);
-            }
-        });
-    }
 
 }
