@@ -6,14 +6,13 @@
 
     <!-- Set Up Text -->
     <string name="bluetooth_set_up">Select Manito from the list of Bluetooth Devices.</string>
-    <string name="wifi_set_up">Scan your home wifi network.</string>
+    <string name="wifi_set_up">Select your home wifi network.</string>
     <string name="scan">Scan for devices</string>
 
     <!-- Menu Items -->
     <string name="action_settings">Settings</string>
     <string name="action_setup">Set Up</string>
     <string name="developer_setting">Developer Mode</string>
-    <string name="wifi_detection">Wifi Detection</string>
     <string name="refresh">Refresh</string>
 
     <!-- BluetoothChat -->

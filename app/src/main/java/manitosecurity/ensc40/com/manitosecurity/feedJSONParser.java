@@ -1,8 +1,10 @@
 package manitosecurity.ensc40.com.manitosecurity;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -27,10 +29,16 @@ public class feedJSONParser {
     String TAG = "feedJSONParser";
     private Context mContext;
     private String mPhoneNumber;
+    private String manitoNumber = "0008675309";
+    private SharedPreferences settings;
+    private SharedPreferences.Editor editor;
+
 
     public feedJSONParser(Context c){
         mContext = c;
         mPhoneNumber = getPhoneNumber();
+        settings = PreferenceManager.getDefaultSharedPreferences(mContext);
+        editor = settings.edit();
     }
 
     // Receives a JSONObject and returns a list
@@ -52,6 +60,8 @@ public class feedJSONParser {
         int eventCount = jEvents.length();
         List<HashMap<String, Object>> eventList = new ArrayList<HashMap<String, Object>>();
         HashMap<String, Object> event = null;
+        String s_latestArm = "";
+        Boolean b_latestArm = false;
 
         // Taking each event, parses and adds to list object
         for (int i = 0; i < eventCount; i++) {
@@ -60,6 +70,16 @@ public class feedJSONParser {
                 event = getEvent((JSONObject) jEvents.get(i));
                 eventList.add(event);
                 //Log.d(TAG, "adding event");
+                if(i == 0){
+                    s_latestArm = event.get("armed").toString();
+                    Log.d(TAG, "latest arm: " + s_latestArm);
+                    if(s_latestArm.equals("Armed")){
+                        b_latestArm = true;
+                    }else{
+                        b_latestArm = false;
+                    }
+                    editor.putBoolean("armState", b_latestArm).commit();
+                }
             } catch (JSONException e) {
                 Log.d(TAG, "in exception for hashmap");
                 e.printStackTrace();
@@ -76,6 +96,7 @@ public class feedJSONParser {
 
         HashMap<String, Object> event = new HashMap<String, Object>();
         String  m_name  = "";
+        String  d_name  = "";
         String  m_time_stamp  = "";
         String  m_time  = "";
         String  b_arm   = "";
@@ -94,6 +115,7 @@ public class feedJSONParser {
 
         try {
             m_name = jEvent.getString("phone");
+            //long contactid = Long.parseLong(fetchContactIdFromPhoneNumber(m_name));
             m_name = getContactName(mContext, m_name);
             m_time_stamp   = jEvent.getString("timestamp");
             m_time         = m_time_stamp.substring(11, 16);
@@ -145,6 +167,17 @@ public class feedJSONParser {
                 m_alert = "Disarmed";
             }
 
+            if(m_name.equals("Manito")){
+                d_name = String.valueOf(R.drawable.manito_contact);
+                d_away = String.valueOf(R.drawable.alert);
+                m_away = "Alert";
+
+            }else if(m_name.equals("You")){
+                d_name = String.valueOf(R.drawable.owner_contact);
+            } else{
+                d_name = String.valueOf(R.drawable.default_contact);
+            }
+
             //event.put("name", m_name);
             event.put("timestamp", m_time);
             event.put("armed", m_arm);
@@ -156,6 +189,7 @@ public class feedJSONParser {
             event.put("home_img", d_away);
             event.put("home", m_away);
             event.put("name", m_name);
+            event.put("name_image", d_name);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -224,7 +258,8 @@ public class feedJSONParser {
         // define the columns I want the query to return
         String[] projection = new String[] {
                 ContactsContract.PhoneLookup.DISPLAY_NAME,
-                ContactsContract.PhoneLookup._ID};
+                ContactsContract.PhoneLookup._ID,
+                ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI};
 
         // encode the phone number and build the filter URI
         Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
@@ -235,16 +270,23 @@ public class feedJSONParser {
         if(cursor != null) {
             if (cursor.moveToFirst()) {
                 name =      cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
-                //Log.d(TAG, "Started uploadcontactphoto: Contact Found @ " + number);
-                //Log.d(TAG, "Started uploadcontactphoto: Contact name  = " + name);
+                String a_name[] = name.split(" ", 2);
+                name = a_name[0] + " " + a_name[1].substring(0,1) + ".";
             } else {
                 //Log.d(TAG, "Contact Not Found @ " + number);
                 if(number.equals(mPhoneNumber)){
                     name = "You";
                 }
+                else if(number.equals(manitoNumber)){
+                    name = "Manito";
+                }
+                else{
+                    name = number;
+                }
             }
             cursor.close();
         }
+
         return name;
     }
 
@@ -252,13 +294,10 @@ public class feedJSONParser {
         TelephonyManager tMgr = (TelephonyManager)mContext.getSystemService(Context.TELEPHONY_SERVICE);
         String mPhoneNumber = tMgr.getLine1Number();
 
-        //Log.d(TAG, "phone numbr " + mPhoneNumber);
-
         return mPhoneNumber;
     }
 
     public String getMonth(int month) {
-
         return new DateFormatSymbols().getMonths()[month-1];
     }
 }

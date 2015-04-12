@@ -10,10 +10,6 @@
         android:title="@string/developer_setting"
         android:orderInCategory="100"/>
 
-    <item android:id="@+id/wifi_detection"
-        android:title="@string/wifi_detection"
-        android:orderInCategory="100"/>
-
     <item android:id="@+id/refesh"
         android:title="@string/refresh"
         android:orderInCategory="100"/>

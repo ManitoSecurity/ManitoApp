@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
@@ -44,6 +45,7 @@ public class MainActivity extends Activity {
 
     private ImageButton imageState;
     private ImageButton emptyFeed;
+    private RelativeLayout bottomBar;
     private ListView mListView;
     private SharedPreferences settings;
     private SwipeRefreshLayout swipeLayout;
@@ -98,6 +100,7 @@ public class MainActivity extends Activity {
 
         // Starting the download process
         downloadTask.execute(strUrl);
+        setUpFinished();
     }
 
     @Override
@@ -125,10 +128,6 @@ public class MainActivity extends Activity {
             case R.id.developer_setting:
                 Intent developer = new Intent(getApplicationContext(), DeveloperChat.class);
                 startActivity(developer);
-                return true;
-            case R.id.wifi_detection:
-                Intent wifi = new Intent(getApplicationContext(), SetUpWifi.class);
-                startActivity(wifi);
                 return true;
             case R.id.refesh:
                 Toast.makeText(getApplicationContext(), "Pull down to refresh" , Toast.LENGTH_SHORT).show();
@@ -160,6 +159,7 @@ public class MainActivity extends Activity {
         emptyFeed = (ImageButton) findViewById(R.id.empty_graphic);
         emptyFeed.setVisibility(View.INVISIBLE);
         imageState = (ImageButton) findViewById(R.id.stateImage);
+        bottomBar = (RelativeLayout) findViewById(R.id.bottomBar);
 
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -174,7 +174,7 @@ public class MainActivity extends Activity {
                 R.color.dark);
 
         if (!settings.getBoolean("armState", false)){		//if setting is off, button should be off
-            imageState.setImageResource(R.drawable.button_off);
+            changeState(false);
         }
 
         emptyFeed.setOnClickListener(new View.OnClickListener() {
@@ -299,6 +299,26 @@ public class MainActivity extends Activity {
                 }}, 1200);
         }
     }
+    public void changeState(Boolean arm){
+        int sdk = android.os.Build.VERSION.SDK_INT;
+        if(arm){
+            imageState.setImageResource(R.drawable.button_on);
+            if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                bottomBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.lowerbaron));
+            }else {
+                bottomBar.setBackground(getResources().getDrawable(R.drawable.lowerbaron));
+            }
+        }
+        else{
+            imageState.setImageResource(R.drawable.button_off);
+            if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                bottomBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.lowerbaroff));
+            }else {
+                bottomBar.setBackground(getResources().getDrawable(R.drawable.lowerbaroff));
+            }
+        }
+    }
+
 
 
     /** AsyncTask to parse json data and load ListView*/
@@ -331,18 +351,36 @@ public class MainActivity extends Activity {
             }
 
             // Keys used in Hashmap
-            String[] from = {"timestamp","armed", "armed_img", "date", "home_img", "home", "name"};
+            String[] from = {"timestamp","armed", "armed_img", "date", "home_img", "home", "name", "name_image"};
 
             // Ids of views in listview_layout
-            int[] to = { R.id.contact_time_text, R.id.contact_armed_text, R.id.contact_armed_picture, R.id.date, R.id.contact_home_picture, R.id.contact_home_text, R.id.contact_name_text};
+            int[] to = { R.id.contact_time_text, R.id.contact_armed_text, R.id.contact_armed_picture, R.id.date, R.id.contact_home_picture, R.id.contact_home_text, R.id.contact_name_text, R.id.contact_picture};
 
             // Instantiating an adapter to store each items
             // R.layout.listview_layout defines the layout of each item
             SimpleAdapter adapter = new SimpleAdapter(getBaseContext(), events, R.layout.feed_layout, from, to);
 
-
-
             return adapter;
+        }
+
+        public void changeState(Boolean arm){
+            int sdk = android.os.Build.VERSION.SDK_INT;
+            if(arm){
+                imageState.setImageResource(R.drawable.button_on);
+                if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    bottomBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.lowerbaron));
+                }else {
+                    bottomBar.setBackground(getResources().getDrawable(R.drawable.lowerbaron));
+                }
+            }
+            else{
+                imageState.setImageResource(R.drawable.button_off);
+                if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    bottomBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.lowerbaroff));
+                }else {
+                    bottomBar.setBackground(getResources().getDrawable(R.drawable.lowerbaroff));
+                }
+            }
         }
 
         /** Invoked by the Android on "doInBackground" is executed*/
@@ -351,11 +389,14 @@ public class MainActivity extends Activity {
 
             // Setting adapter for the listview
             mListView.setAdapter(adapter);
+            if(settings.getBoolean("armState", false) == true){
+                changeState(true);
+            }else{
+                changeState(false);
+            }
 
             for(int i=0;i<adapter.getCount();i++){
                 HashMap<String, Object> hm = (HashMap<String, Object>) adapter.getItem(i);
-                String imgUrl = (String) hm.get("flag_path");
-
             }
         }
     }
@@ -409,14 +450,14 @@ public class MainActivity extends Activity {
                     break;
                 case Constants.TOAST_SUCCESS:
                     if(msettings.getBoolean("armState", false) == false) {
-                        imageState.setImageResource(R.drawable.button_on);
+                        changeState(true);
                         meditor.putBoolean("armState", true).commit();
 
                         Toast.makeText(getApplicationContext(), "Succesfully armed",
                                 Toast.LENGTH_SHORT).show();
                     }
                     else{
-                        imageState.setImageResource(R.drawable.button_off);
+                        changeState(false);
                         meditor.putBoolean("armState", false).commit();
 
                         Toast.makeText(getApplicationContext(), "Succesfully disarmed",

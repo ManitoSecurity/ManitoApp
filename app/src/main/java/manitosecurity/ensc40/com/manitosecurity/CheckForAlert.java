@@ -15,7 +15,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by Collin on 4/9/2015.
@@ -166,7 +168,7 @@ public class CheckForAlert {
 
             Log.d(TAG, "last " + mlatestAlert + " new " + currenttime + " b_alert" + b_alert);
 
-            boolean isNewer = currenttime > mlatestAlert;
+            boolean isNewer = currenttime > (mlatestAlert + 100);
 
             if(b_alert.equals("T") && isNewer){
                 Notification_Service mNotificationService = new Notification_Service(mContext);
@@ -182,6 +184,7 @@ public class CheckForAlert {
 
     private long dateToMilliseconds(String date){
         Calendar calendar = Calendar.getInstance();
+        Date oldDate = new Date();
 
         int year = Integer.parseInt(date.substring(0, 4));
         int month = Integer.parseInt(date.substring(5, 7));
@@ -190,12 +193,20 @@ public class CheckForAlert {
         int minute = Integer.parseInt(date.substring(14, 16));
         int seconds = Integer.parseInt(date.substring(17, 19));
 
-        Log.d(TAG, year + " " + month + " " + day + " " + hour + " " + minute + " " + seconds);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 
+        String oldTime = year + "." + month + "." + day + "." + hour + "." + minute + "." + seconds;
+        Log.d(TAG, oldTime);
+
+        try {
+            oldDate = formatter.parse(oldTime);
+        } catch(Exception e){
+            Log.d("converting time", e.toString());
+        }
 
         calendar.set(year, month, day, hour, minute, seconds);
 
-        long time = calendar.getTimeInMillis();
+        long time = oldDate.getTime();
         Log.d(TAG, "--------------------------------" + time);
 
         return time;

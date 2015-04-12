@@ -14,7 +14,7 @@
         android:background="@color/green"
         android:paddingTop="20dp"
         android:clipChildren="false"
-        android:layout_weight="5">
+        android:layout_weight="6">
         <TextView
             android:id="@+id/wifi_tv"
             android:text="@string/wifi_set_up"
@@ -47,7 +47,7 @@
         android:layout_width="fill_parent"
         android:background="@color/orange"
         android:clipChildren="true"
-        android:layout_weight="5">
+        android:layout_weight="4">
         <ListView
             android:id="@+id/wifilist"
             android:background="@color/white"

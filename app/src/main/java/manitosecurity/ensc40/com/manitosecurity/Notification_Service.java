@@ -23,9 +23,8 @@ public class Notification_Service{
         mBuilder.setContentTitle("Manito Security");
         mBuilder.setContentText("Motion Detected!");
         mBuilder.setTicker("Detection");
-        mBuilder.setSmallIcon(R.drawable.button_on);
+        mBuilder.setSmallIcon(R.drawable.notification);
         mBuilder.setAutoCancel(true);
-
 
         mNotificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);

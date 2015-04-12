@@ -29,7 +29,8 @@
             android:paddingTop="1dp"
             android:paddingBottom="1dp"
             android:gravity="center"
-            android:background="@color/dark"
+            android:background="@color/medium"
+            android:textSize="10dp"
             android:text="You"/>
         </RelativeLayout>
 
@@ -64,7 +65,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/contact_armed"
-            android:layout_marginTop="10dp"
             android:layout_below="@id/contact_home">
             <ImageView
                 android:id="@+id/contact_armed_picture"
@@ -89,9 +89,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-
+        android:layout_marginTop="13dp"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="9dp"
         android:id="@+id/contact_date">
         <TextView
             android:id="@+id/date"
