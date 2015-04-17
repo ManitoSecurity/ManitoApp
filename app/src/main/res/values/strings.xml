@@ -6,7 +6,7 @@
 
     <!-- Set Up Text -->
     <string name="bluetooth_set_up">Select Manito from the list of Bluetooth Devices.</string>
-    <string name="wifi_set_up">Select your home wifi network.</string>
+    <string name="wifi_set_up">Select your home wifi.</string>
     <string name="scan">Scan for devices</string>
 
     <!-- Menu Items -->
@@ -21,6 +21,7 @@
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled.</string>
     <string name="title_connecting">connecting...</string>
     <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="title_sending">checking internet connection for <xliff:g id="device_name">%1$s</xliff:g></string>
     <string name="title_not_connected">not connected</string>
 
     <!-- DeviceListActivity -->
@@ -32,5 +33,6 @@
     <string name="title_other_devices">Other Available Devices</string>
     <string name="button_scan">Scan for devices</string>
     <string name="title_activity_set_up">SetUp</string>
+    <string name="title_activity_set_up_simple">SetUpSimple</string>
 
 </resources>

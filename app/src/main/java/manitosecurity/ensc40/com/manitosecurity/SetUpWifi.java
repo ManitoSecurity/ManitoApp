@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -82,6 +83,9 @@ public class SetUpWifi extends Activity {
         setAnimationEnd(slideDown, mRefreshIcon);
         setAnimationStart(slideUp, mRefreshIcon);
         setAnimationMiddle(spin, mRefreshIcon, false);
+
+        getActionBar().setIcon(
+                new ColorDrawable(getResources().getColor(android.R.color.transparent)));
 
         Log.d(TAG, "got wifi manager");
         setupUI();

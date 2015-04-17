@@ -74,7 +74,6 @@
                 <action android:name="android.net.wifi.STATE_CHANGE" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".CheckForAlertReceiver"
             android:exported="true" >
@@ -89,6 +88,11 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+
+        <activity
+            android:name=".SetUpSimple"
+            android:label="@string/title_activity_set_up_simple" >
+        </activity>
     </application>
 
 </manifest>
