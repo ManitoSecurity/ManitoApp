@@ -3,45 +3,44 @@
     android:layout_width="fill_parent" android:layout_height="wrap_content"
     android:layout_centerHorizontal="true">
 
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:background="@color/dark"
-        android:paddingTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingBottom="10dp"
-        android:text="7-2-2015"
-        android:textColor="@color/white"/>
-
-    <ImageView
-        android:id="@+id/contact_picture"
-        android:src="@drawable/default_contact"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/date"
-        android:layout_centerVertical="true"
-        android:padding="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="15dp"/>
+        android:id="@+id/contact_picture_wrapper">
+        <ImageView
+            android:id="@+id/contact_picture"
+            android:src="@drawable/default_contact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"/>
+
+        <TextView
+            android:id="@+id/contact_name_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/contact_picture"
+            android:layout_alignRight="@id/contact_picture"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/light"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:gravity="center"
+            android:background="@color/medium"
+            android:textSize="10dp"
+            android:text="You"/>
+        </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="100dp"
-        android:id="@+id/contact_name"
-        android:layout_toRightOf="@id/contact_picture">
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
         android:id="@+id/left_column"
         android:minWidth="100dp"
-        android:layout_below="@id/contact_name"
-        android:layout_toRightOf="@id/contact_picture">
+        android:layout_toRightOf="@id/contact_picture_wrapper">
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -85,38 +84,30 @@
         </RelativeLayout>
     </RelativeLayout>
 
+
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/right_column"
-        android:layout_marginBottom="11dp"
-        android:layout_marginRight="5dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="13dp"
         android:layout_alignParentRight="true"
-        android:layout_alignBottom="@id/left_column">
-
-        <RelativeLayout
+        android:layout_marginRight="9dp"
+        android:id="@+id/contact_date">
+        <TextView
+            android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="100dp"
-            android:id="@+id/contact_time">
-            <TextView
-                android:id="@+id/contact_name_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/light_2"
-                android:layout_marginRight="7dp"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="Collin"/>
-            <TextView
-                android:id="@+id/contact_time_text"
-                android:layout_toRightOf="@id/contact_name_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:textColor="@color/light_2"
-                android:gravity="end"
-                android:text="12:30 pm"/>
-        </RelativeLayout>
+            android:textColor="@color/light_2"
+            android:text="4-3"/>
+        <TextView
+            android:id="@+id/contact_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/date"
+            android:textColor="@color/light_2"
+            android:layout_marginLeft="5dp"
+            android:gravity="end"
+            android:text="12:30 pm"/>
+
     </RelativeLayout>
 </RelativeLayout>

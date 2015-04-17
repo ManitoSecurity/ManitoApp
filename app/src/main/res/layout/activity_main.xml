@@ -33,7 +33,7 @@
         android:layout_width="fill_parent"
         android:background="@drawable/lowerbaron"
         android:layout_below="@id/imageButtonFrame"
-        android:layout_height="20dp">
+        android:layout_height="10dp">
     </RelativeLayout>
 
 
@@ -50,17 +50,19 @@
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             android:divider="@color/white"
+            android:listSelector="@android:color/transparent"
             tools:context=".MainActivity"
-            android:dividerHeight="15dp"/>
+            android:dividerHeight="25dp"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <ImageView
+    <ImageButton
         android:id="@+id/empty_graphic"
         android:src="@drawable/empty_feed"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_below="@id/bottomBar"
+        android:background="@null"
         android:clipToPadding="false"
         tools:context=".MainActivity"
         android:dividerHeight="15dp"/>

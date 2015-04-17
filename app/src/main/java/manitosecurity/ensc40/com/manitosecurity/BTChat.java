@@ -234,7 +234,7 @@ public class BTChat {
             mInsecureAcceptThread.cancel();
             mInsecureAcceptThread = null;
         }
-        setState(STATE_NONE);
+        //setState(STATE_NONE);
     }
 
     /**
@@ -276,14 +276,13 @@ public class BTChat {
      */
     private void connectionLost() {
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.TOAST, "Device connection was lost");
-        msg.setData(bundle);
+        Message msg = mHandler.obtainMessage(Constants.MESSAGE_LOST);
+        Log.d(TAG, "btCHAT loss!!! ");
         mHandler.sendMessage(msg);
 
+
         // Start the service over to restart listening mode
-        BTChat.this.start();
+        //BTChat.this.start();
     }
 
     /**
@@ -489,7 +488,7 @@ public class BTChat {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
                     // Start the service over to restart listening mode
-                    BTChat.this.start();
+                    //BTChat.this.start();
                     break;
                 }
             }
@@ -518,23 +517,6 @@ public class BTChat {
                 Log.e(TAG, "Exception during write", e);
             }
         }
-
-        /*
-         * Write to the connected OutStream.
-         *
-         * @param buffer The bytes to write
-
-        public void echo() {
-            try {
-
-                Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
-                Bundle bundle = new Bundle();
-
-            } catch (IOException e) {
-                Log.e(TAG, "Exception during write", e);
-            }
-        }
-         */
 
         public void cancel() {
             try {

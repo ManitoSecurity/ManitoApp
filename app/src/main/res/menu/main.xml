@@ -3,15 +3,14 @@
     tools:context=".MainActivity" >
     
     <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:title="@string/action_setup"
         android:orderInCategory="100"/>
 
     <item android:id="@+id/developer_setting"
         android:title="@string/developer_setting"
         android:orderInCategory="100"/>
 
-
-    <item android:id="@+id/wifi_detection"
-        android:title="@string/wifi_detection"
+    <item android:id="@+id/refesh"
+        android:title="@string/refresh"
         android:orderInCategory="100"/>
 </menu>

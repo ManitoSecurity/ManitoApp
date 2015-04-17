@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,7 +35,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -53,6 +53,7 @@ public final class SetUpBT extends Activity {
     private String WifiName = "";
     private String WifiPW = "";
     private boolean WifiSecure = false;
+    private boolean finishedReceiving = false;
 
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
@@ -62,8 +63,8 @@ public final class SetUpBT extends Activity {
     // Layout Views
     private Button mRefreshButton;
     private ImageView mRefreshIcon;
+    private ImageView mSendIcon;
     private Animation slideUp, spin, slideDown;
-    private AnimationSet manimationSetStart, manimationSetEnd;
 
 
     // Notification Handler
@@ -108,7 +109,9 @@ public final class SetUpBT extends Activity {
 
         mRefreshButton = (Button) findViewById(R.id.refresh_button);
         mRefreshIcon = (ImageView) findViewById(R.id.refresh_icon);
+        mSendIcon = (ImageView) findViewById(R.id.send_icon);
         mRefreshIcon.setVisibility(View.INVISIBLE);
+        mSendIcon.setVisibility(View.INVISIBLE);
 
         //Set up animation
         slideUp     = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
@@ -117,10 +120,17 @@ public final class SetUpBT extends Activity {
         setAnimationEnd(slideDown, mRefreshIcon);
         setAnimationStart(slideUp, mRefreshIcon);
         setAnimationMiddle(spin, mRefreshIcon, false);
+        setAnimationEnd(slideDown, mSendIcon);
+        setAnimationStart(slideUp, mSendIcon);
+        setAnimationMiddle(spin, mSendIcon, false);
 
 
         settings = PreferenceManager.getDefaultSharedPreferences(this);
 
+        getActionBar().setIcon(
+                new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+
+        getActionBar().setTitle("");
 
         // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -224,17 +234,6 @@ public final class SetUpBT extends Activity {
         b.setBackgroundColor(getResources().getColor(R.color.dark));
     }
 
-    /**
-     * Makes this device discoverable.
-     */
-    private void ensureDiscoverable() {
-        if (mBluetoothAdapter.getScanMode() !=
-                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-            startActivity(discoverableIntent);
-        }
-    }
 
     /**
      * The on-click listener for all devices in the ListViews
@@ -243,15 +242,18 @@ public final class SetUpBT extends Activity {
             = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
             // Cancel discovery because it's costly and we're about to connect
-            mBluetoothAdapter.cancelDiscovery();
+            if(!finishedReceiving) {
+                Log.d(TAG, "can click: " + finishedReceiving);
+                mBluetoothAdapter.cancelDiscovery();
 
-            // Get the device MAC address, which is the last 17 chars in the View
-            String info = ((TextView) v).getText().toString();
-            String address = info.substring(info.length() - 17);
+                // Get the device MAC address, which is the last 17 chars in the View
+                String info = ((TextView) v).getText().toString();
+                String address = info.substring(info.length() - 17);
 
-            // Create the result Intent and include the MAC address
-            connectDevice(address.toString(), true);
-            Toast.makeText(getApplicationContext(), address, Toast.LENGTH_SHORT).show();
+                // Create the result Intent and include the MAC address
+                connectDevice(address.toString(), true);
+                Toast.makeText(getApplicationContext(), "Connecting...", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
@@ -263,7 +265,6 @@ public final class SetUpBT extends Activity {
     private void sendMessage(String message) {
         // Check that we're actually connected before trying anything
         if (mChatService.getState() != BTChat.STATE_CONNECTED) {
-            Toast.makeText(this, "Not Connected", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -322,7 +323,11 @@ public final class SetUpBT extends Activity {
                         case BTChat.STATE_CONNECTED:
                             setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
                             Log.d(TAG, "CONNECTED!!! <3");
-                            SendWifiCred();
+                            Log.d(TAG, "Sending wifi ssid");
+                            Toast.makeText(getApplicationContext(), "sending information...", Toast.LENGTH_LONG).show();
+                            setAnimationMiddle(spin, mSendIcon, false);
+                            mSendIcon.startAnimation(slideUp);
+                            SendWifiSSID();
                             break;
                         case BTChat.STATE_CONNECTING:
                             setStatus(R.string.title_connecting);
@@ -330,6 +335,7 @@ public final class SetUpBT extends Activity {
                         case BTChat.STATE_LISTEN:
                         case BTChat.STATE_NONE:
                             setStatus(R.string.title_not_connected);
+                            setAnimationMiddle(spin, mRefreshIcon, true);
                             break;
                     }
                     break;
@@ -342,10 +348,29 @@ public final class SetUpBT extends Activity {
                     byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    if(readMessage.contains("X")){
-                        mNotification.displayNotification();
-                        Toast.makeText(getApplicationContext(), "BLUETUUTHE!!",
-                                Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "MESSAGE: " + readMessage);
+                    if(readMessage.contains("E")){
+                        Log.d(TAG, "ERROR");
+                        Toast.makeText(getApplicationContext(), "There was an error sending wifi information", Toast.LENGTH_SHORT).show();
+                    }
+                    else if (readMessage.contains("S") || readMessage.contains("I") || readMessage.contains("D")){
+                        SendWifiSSID();
+                    }
+                    else if(readMessage.contains("p") || readMessage.contains("a") || readMessage.contains("s") || readMessage.contains("w") ||
+                            readMessage.contains("o") || readMessage.contains("r") || readMessage.contains("d") || readMessage.contains("e") ||
+                            readMessage.contains("n") || readMessage.contains("t") || readMessage.contains("r")){
+                        Log.d(TAG, "Sending wifi password");
+                        setStatus(getString(R.string.title_sending, mConnectedDeviceName));
+                        SendWifiPassword();
+                    }
+                    else{
+                        if(!finishedReceiving) {
+                            finishedReceiving = true;
+                            Toast.makeText(getApplicationContext(), "Successfully set up!", Toast.LENGTH_SHORT).show();
+                            mHandler.removeCallbacksAndMessages(null);
+                            Log.d(TAG, "FINISHED C");
+                            Finish();
+                        }
                     }
                     break;
                 case Constants.MESSAGE_DEVICE_NAME:
@@ -357,69 +382,47 @@ public final class SetUpBT extends Activity {
                     }
                     break;
                 case Constants.MESSAGE_TOAST:
-                    if (null != this) {
-                        //Toast.makeText(getApplicationContext(), msg.getData().getString(Constants.TOAST),
-                        //        Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.MESSAGE_LOST:
+                    Log.d(TAG, "SetUpBTLost!!!!");
+                    Log.d(TAG, "FINISHED LOST");
+                    if(!finishedReceiving) {
+                        Finish();
                     }
                     break;
             }
         }
     };
 
-    private void SendWifiCred(){
+    private void SendWifiSSID(){
         WifiName = settings.getString("WiFiName", "");
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                sendMessage(WifiName+"#");
+                Log.d(TAG, "sent " + WifiName);
+            }
+        }, 2000);
+
+    }
+    private void SendWifiPassword(){
         WifiPW = settings.getString("WiFiPassword", "");
         WifiSecure = settings.getBoolean("WiFiProtected", false);
-        Log.d(TAG, "SENDING: " + WifiName + WifiPW + WifiSecure);
 
-        sendMessage(WifiName+"#");
-        Log.d(TAG, "SENDING: " + WifiName + "#");
-
-        if(WifiSecure){ sendMessage(WifiPW+"#"); Log.d(TAG, "SENDING: " + WifiPW + "#");
+        if(WifiSecure){
+            sendMessage(WifiPW+"#");
         }
-
-        Log.d(TAG, "SENT!!");
-        Finish();
     }
 
     private void Finish(){
         Log.d(TAG, "FINISHED");
         Intent returnIntent = new Intent();
         setResult(RESULT_OK, returnIntent);
+        mChatService.stop();
         finish();
     }
 
-
-    /*
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_CONNECT_DEVICE_SECURE:
-                // When DeviceListActivity returns with a device to connect
-                if (resultCode == Activity.RESULT_OK) {
-                    connectDevice(data, true);
-                }
-                break;
-            case REQUEST_CONNECT_DEVICE_INSECURE:
-                // When DeviceListActivity returns with a device to connect
-                if (resultCode == Activity.RESULT_OK) {
-                    connectDevice(data, false);
-                }
-                break;
-            case REQUEST_ENABLE_BT:
-                // When the request to enable Bluetooth returns
-                if (resultCode == Activity.RESULT_OK) {
-                    // Bluetooth is now enabled, so set up a chat session
-                    setupUI();
-                } else {
-                    // User did not enable Bluetooth or an error occurred
-                    Log.d(TAG, "BT not enabled");
-                    Toast.makeText(getApplicationContext(), R.string.bt_not_enabled_leaving,
-                            Toast.LENGTH_SHORT).show();
-                    this.finish();
-                }
-        }
-    }
-    */
 
     /**
      * Establish connection with other device
@@ -432,36 +435,6 @@ public final class SetUpBT extends Activity {
         // Attempt to connect to the device
         mChatService.connect(device, secure);
     }
-   /*
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.bluetooth_chat, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.secure_connect_scan: {
-                // Launch the DeviceListActivity to see devices and do scan
-                Intent serverIntent = new Intent(this, DeviceListActivity.class);
-                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
-                return true;
-            }
-            case R.id.insecure_connect_scan: {
-                // Launch the DeviceListActivity to see devices and do scan
-                Intent serverIntent = new Intent(this, DeviceListActivity.class);
-                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_INSECURE);
-                return true;
-            }
-            case R.id.discoverable: {
-                // Ensure this device is discoverable by others
-                ensureDiscoverable();
-                return true;
-            }
-        }
-        return false;
-    }
-*/
 
     /**
      * Start device discover with the BluetoothAdapter

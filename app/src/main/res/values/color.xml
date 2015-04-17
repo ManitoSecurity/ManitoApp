@@ -7,4 +7,5 @@
     <item name="light" type="color">#F0F2F2</item>
     <item name="light_2" type="color">#CECECE</item>
     <item name="white" type="color">#ffffff</item>
+    <item name="translucent" type="color">#10ffffff</item>
 </resources>

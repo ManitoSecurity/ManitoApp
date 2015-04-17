@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:weightSum="10"
+    android:clipChildren="true"
+    android:background="@color/white"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/button_wrapper"
+        android:layout_height="fill_parent"
+        android:layout_width="fill_parent"
+        android:background="@color/green"
+        android:paddingTop="20dp"
+        android:clipChildren="false"
+        android:layout_weight="6">
+        <TextView
+            android:id="@+id/bluetooth_set_up"
+            android:text="@string/bluetooth_set_up"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            android:padding="10dp"
+            android:textAlignment="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:transcriptMode="normal" />
+        <ImageView
+            android:id="@+id/refresh_icon"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_centerVertical="true"
+            android:background="@drawable/refresh"
+            android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:id="@+id/refresh_button"
+            android:layout_height="45dp"
+            android:layout_width="match_parent"
+            android:layout_margin="0dp"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/bt_list"
+        android:layout_height="fill_parent"
+        android:layout_width="fill_parent"
+        android:background="@color/orange"
+        android:clipChildren="true"
+        android:layout_weight="4">
+        <ListView
+            android:id="@+id/btlist"
+            android:background="@color/white"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:stackFromBottom="false"
+            android:transcriptMode="normal" />
+
+    </RelativeLayout>
+
+</LinearLayout>
