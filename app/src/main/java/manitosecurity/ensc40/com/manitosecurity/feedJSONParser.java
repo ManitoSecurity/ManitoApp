@@ -81,7 +81,7 @@ public class feedJSONParser {
                     editor.putBoolean("armState", b_latestArm).commit();
                 }
             } catch (JSONException e) {
-                Log.d(TAG, "in exception for hashmap");
+                Log.d(TAG, "in exception for hashmap ");
                 e.printStackTrace();
             }
         }
@@ -219,7 +219,7 @@ public class feedJSONParser {
         i_hours += daylightSaving;
 
 
-        if(i_hours <= 0){
+        if(i_hours < 0){
             i_hours += 24;
             i_day = Integer.parseInt(time[1]) - 1;
         }

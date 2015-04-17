@@ -17,9 +17,6 @@ public class CheckWifi extends BroadcastReceiver {
 
     private FeedHandler fh = new FeedHandler(mcontext, mhandler);
 
-    public CheckWifi() {
-
-    }
 
     public void onReceive(final Context context, final Intent intent) {
         mcontext = context;
@@ -36,7 +33,8 @@ public class CheckWifi extends BroadcastReceiver {
             NetworkInfo networkInfo =
                     intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
             if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI &&
-                    ! networkInfo.isConnected() && networkInfo.getState() != NetworkInfo.State.CONNECTING) {
+                    ! networkInfo.isConnected() && networkInfo.getState() != NetworkInfo.State.CONNECTING
+                    && networkInfo.getState() != NetworkInfo.State.SUSPENDED) {
                 // Wifi is disconnected
                 Log.d(log, "Wifi is disconnected: " + String.valueOf(networkInfo));
                 fh.updateFeed("9364467121", "T", "F", "T", "F");
