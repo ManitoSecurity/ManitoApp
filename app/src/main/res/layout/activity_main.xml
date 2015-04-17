@@ -33,7 +33,7 @@
         android:layout_width="fill_parent"
         android:background="@drawable/lowerbaron"
         android:layout_below="@id/imageButtonFrame"
-        android:layout_height="20dp">
+        android:layout_height="10dp">
     </RelativeLayout>
 
 
