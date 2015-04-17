@@ -58,6 +58,7 @@ public class feedJSONParser {
 
     private List<HashMap<String, Object>> getEvents(JSONArray jEvents) {
         int eventCount = jEvents.length();
+        Boolean exists = false;
         List<HashMap<String, Object>> eventList = new ArrayList<HashMap<String, Object>>();
         HashMap<String, Object> event = null;
         String s_latestArm = "";
@@ -68,8 +69,25 @@ public class feedJSONParser {
             try {
                 // Call getEvent with event JSON object to parse the event
                 event = getEvent((JSONObject) jEvents.get(i));
-                eventList.add(event);
-                //Log.d(TAG, "adding event");
+                Log.d(TAG, "event name " + event.get("name").toString());
+
+                checkLoop:
+                for(int j = 0; j < eventList.size(); j++){
+                    if(eventList.get(j).containsValue(event.get("name").toString())){
+                        Log.d(TAG, "already have: " + event.get("name").toString());
+                        exists = true;
+                        break checkLoop;
+                    }
+                    else{
+                        exists = false;
+                    }
+                }
+
+                if(!exists) {
+                    Log.d(TAG, "dont have: " + event.get("name").toString());
+                    eventList.add(event);
+                }
+
                 if(i == 0){
                     s_latestArm = event.get("armed").toString();
                     Log.d(TAG, "latest arm: " + s_latestArm);
@@ -178,7 +196,6 @@ public class feedJSONParser {
                 d_name = String.valueOf(R.drawable.default_contact);
             }
 
-            //event.put("name", m_name);
             event.put("timestamp", m_time);
             event.put("armed", m_arm);
             //event.put("home", m_home);

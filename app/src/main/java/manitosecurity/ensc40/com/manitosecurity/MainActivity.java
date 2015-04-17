@@ -86,6 +86,7 @@ public class MainActivity extends Activity {
         setUpUI();
 
         mPhoneNumber = getPhoneNumber();
+        editor.putString("PhoneNumber", mPhoneNumber).apply();
 
         setRecurringAlarm(this);
 

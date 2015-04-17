@@ -19,8 +19,9 @@ public class CheckWifi extends BroadcastReceiver {
     public Handler mhandler;
     private SharedPreferences settings;
     private String WifiName;
-    private static String lastConnectedSSID;
-
+    private String mPhoneNumber;
+    private String lastConnectedSSID;
+    private SharedPreferences.Editor editor;
 
     private FeedHandler fh = new FeedHandler(mcontext, mhandler);
 
@@ -28,7 +29,10 @@ public class CheckWifi extends BroadcastReceiver {
     public void onReceive(final Context context, final Intent intent) {
         settings = PreferenceManager.getDefaultSharedPreferences(context);
         WifiName = settings.getString("WiFiName", "");
-        Log.d(log, "Wifi shared preference: " + WifiName);
+        mPhoneNumber = settings.getString("PhoneNumber", "");
+        lastConnectedSSID = settings.getString("LastConnectedSSID", "");
+        editor = settings.edit();
+        //Log.d(log, "Wifi shared preference: " + WifiName);
         Log.d(log, "lastConnectedSSID ONRECEIVE----------" + lastConnectedSSID);
 
 
@@ -41,11 +45,12 @@ public class CheckWifi extends BroadcastReceiver {
             currentWifiName = currentWifiName.replace("\"", "");
             if(networkInfo.isConnected()) {
                 lastConnectedSSID = currentWifiName;
+                editor.putString("LastConnectedSSID", lastConnectedSSID).commit();
                 Log.d(log, "new lastConnectedSSID " + lastConnectedSSID);
                 // Wifi is connected
                 if(currentWifiName.equals(WifiName)) {
                     Log.d(log, "Wifi is connected: " + String.valueOf(networkInfo));
-                    fh.updateFeed("9364467121", "F", "F", "F", "F");
+                    fh.updateFeed(mPhoneNumber, "F", "F", "F", "F");
                 }
             }
         } else if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
@@ -57,7 +62,7 @@ public class CheckWifi extends BroadcastReceiver {
                     && lastConnectedSSID.equals(WifiName)) {
                 // Wifi is disconnected
                 Log.d(log, "Wifi is disconnected: " + String.valueOf(networkInfo));
-                fh.updateFeed("9364467121", "T", "F", "T", "F");
+                fh.updateFeed(mPhoneNumber, "T", "F", "T", "F");
             }
         }
     }
