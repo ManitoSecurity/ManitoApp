@@ -69,7 +69,7 @@ public class WelcomeScreen extends Activity {
         setUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                Intent intent = new Intent(getApplicationContext(), PickSetUp.class);
                 setAnimationEnd(slideDown, intent);
                 setUp.bringToFront();
                 help.startAnimation(slideDown);

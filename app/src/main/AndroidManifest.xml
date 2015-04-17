@@ -93,6 +93,18 @@
             android:name=".SetUpSimple"
             android:label="@string/title_activity_set_up_simple" >
         </activity>
+        <activity
+            android:name=".SetUpBTSimple"
+            android:label="@string/title_activity_set_up_btsimple" >
+        </activity>
+        <activity
+            android:name=".SetUpWifiSimple"
+            android:label="@string/title_activity_set_up_wifi_simple" >
+        </activity>
+        <activity
+            android:name=".PickSetUp"
+            android:label="@string/title_activity_pick_set_up" >
+        </activity>
     </application>
 
 </manifest>

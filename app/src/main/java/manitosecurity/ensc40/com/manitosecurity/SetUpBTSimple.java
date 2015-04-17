@@ -1,24 +1,5 @@
-/*
- * Copyright (C) 2014 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * THIS FILE HAS BEEN CHANGED BY PROJECT MANITO 2014
- */
-
 package manitosecurity.ensc40.com.manitosecurity;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -44,10 +25,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-/**
- * This activity controls Bluetooth to communicate with other devices.
- */
-public final class SetUpBT extends Activity {
+
+public class SetUpBTSimple extends Activity {
 
     private static final String TAG = "SetUpBT";
     private String WifiName = "";
@@ -63,7 +42,6 @@ public final class SetUpBT extends Activity {
     // Layout Views
     private Button mRefreshButton;
     private ImageView mRefreshIcon;
-    private ImageView mSendIcon;
     private Animation slideUp, spin, slideDown;
 
 
@@ -72,13 +50,6 @@ public final class SetUpBT extends Activity {
 
     // Shared Preferences
     private SharedPreferences settings;
-
-
-
-    /**
-     * Name of the connected device
-     */
-    private String mConnectedDeviceName = null;
 
     /**
      * String buffer for outgoing messages
@@ -101,7 +72,7 @@ public final class SetUpBT extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.set_up_bt);
+        setContentView(R.layout.activity_set_up_btsimple);
         //setHasOptionsMenu(true);
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -109,9 +80,7 @@ public final class SetUpBT extends Activity {
 
         mRefreshButton = (Button) findViewById(R.id.refresh_button);
         mRefreshIcon = (ImageView) findViewById(R.id.refresh_icon);
-        mSendIcon = (ImageView) findViewById(R.id.send_icon);
         mRefreshIcon.setVisibility(View.INVISIBLE);
-        mSendIcon.setVisibility(View.INVISIBLE);
 
         //Set up animation
         slideUp     = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
@@ -120,9 +89,6 @@ public final class SetUpBT extends Activity {
         setAnimationEnd(slideDown, mRefreshIcon);
         setAnimationStart(slideUp, mRefreshIcon);
         setAnimationMiddle(spin, mRefreshIcon, false);
-        setAnimationEnd(slideDown, mSendIcon);
-        setAnimationStart(slideUp, mSendIcon);
-        setAnimationMiddle(spin, mSendIcon, false);
 
 
         settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -277,37 +243,6 @@ public final class SetUpBT extends Activity {
         }
     }
 
-    /**
-     * Updates the status on the action bar.
-     *
-     * @param resId a string resource ID
-     */
-    private void setStatus(int resId) {
-        if (null == this) {
-            return;
-        }
-        final ActionBar actionBar = this.getActionBar();
-        if (null == actionBar) {
-            return;
-        }
-        actionBar.setSubtitle(resId);
-    }
-
-    /**
-     * Updates the status on the action bar.
-     *
-     * @param subTitle status
-     */
-    private void setStatus(CharSequence subTitle) {
-        if (null == this) {
-            return;
-        }
-        final ActionBar actionBar = this.getActionBar();
-        if (null == actionBar) {
-            return;
-        }
-        actionBar.setSubtitle(subTitle);
-    }
 
     /**
      * The Handler that gets information back from the BTChat
@@ -319,74 +254,25 @@ public final class SetUpBT extends Activity {
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
                         case BTChat.STATE_CONNECTED:
-                            setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
                             Log.d(TAG, "CONNECTED!!! <3");
-                            Log.d(TAG, "Sending wifi ssid");
-                            Toast.makeText(getApplicationContext(), "sending information...", Toast.LENGTH_LONG).show();
-                            setAnimationMiddle(spin, mSendIcon, false);
-                            mSendIcon.startAnimation(slideUp);
-                            SendWifiSSID();
+                            Toast.makeText(getApplicationContext(), "Connected!", Toast.LENGTH_LONG).show();
+                            Finish();
                             break;
                         case BTChat.STATE_CONNECTING:
-                            setStatus(R.string.title_connecting);
                             break;
                         case BTChat.STATE_LISTEN:
                         case BTChat.STATE_NONE:
-                            setStatus(R.string.title_not_connected);
                             setAnimationMiddle(spin, mRefreshIcon, true);
                             break;
                     }
                     break;
                 case Constants.MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
-                    // construct a string from the buffer
-                    String writeMessage = new String(writeBuf);
                     break;
                 case Constants.MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-                    // construct a string from the valid bytes in the buffer
-                    String readMessage = new String(readBuf, 0, msg.arg1);
-                    Log.d(TAG, "MESSAGE: " + readMessage);
-                    if(readMessage.contains("E")){
-                        Log.d(TAG, "ERROR");
-                        Toast.makeText(getApplicationContext(), "There was an error sending wifi information", Toast.LENGTH_SHORT).show();
-                    }
-                    else if (readMessage.contains("S") || readMessage.contains("I") || readMessage.contains("D")){
-                        SendWifiSSID();
-                    }
-                    else if(readMessage.contains("p") || readMessage.contains("a") || readMessage.contains("s") || readMessage.contains("w") ||
-                            readMessage.contains("o") || readMessage.contains("r") || readMessage.contains("d") || readMessage.contains("e") ||
-                            readMessage.contains("n") || readMessage.contains("t") || readMessage.contains("r")){
-                        Log.d(TAG, "Sending wifi password");
-                        setStatus(getString(R.string.title_sending, mConnectedDeviceName));
-                        SendWifiPassword();
-                    }
-                    else{
-                        if(!finishedReceiving) {
-                            finishedReceiving = true;
-                            Toast.makeText(getApplicationContext(), "Successfully sent information", Toast.LENGTH_SHORT).show();
-                            mHandler.removeCallbacksAndMessages(null);
-                            Log.d(TAG, "FINISHED C");
-                            Finish();
-                        }
-                    }
-                    break;
-                case Constants.MESSAGE_DEVICE_NAME:
-                    // save the connected device's name
-                    mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
-                    if (null != this) {
-                        Toast.makeText(getApplicationContext(), "Connected to "
-                                + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-                    }
                     break;
                 case Constants.MESSAGE_TOAST:
                     break;
                 case Constants.MESSAGE_LOST:
-                    Log.d(TAG, "SetUpBTLost!!!!");
-                    Log.d(TAG, "FINISHED LOST");
-                    if(!finishedReceiving) {
-                        Finish();
-                    }
                     break;
             }
         }
@@ -544,4 +430,5 @@ public final class SetUpBT extends Activity {
             }
         });
     }
+
 }

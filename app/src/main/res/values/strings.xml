@@ -8,6 +8,8 @@
     <string name="bluetooth_set_up">Select Manito from the list of Bluetooth Devices.</string>
     <string name="wifi_set_up">Select your home wifi.</string>
     <string name="scan">Scan for devices</string>
+    <string name="new_setup">First Time Set Up</string>
+    <string name="join_setup">Join a Manito System</string>
 
     <!-- Menu Items -->
     <string name="action_settings">Settings</string>
@@ -34,5 +36,8 @@
     <string name="button_scan">Scan for devices</string>
     <string name="title_activity_set_up">SetUp</string>
     <string name="title_activity_set_up_simple">SetUpSimple</string>
+    <string name="title_activity_set_up_btsimple">SetUpBTSimple</string>
+    <string name="title_activity_set_up_wifi_simple">SetUpWifiSimple</string>
+    <string name="title_activity_pick_set_up">PickSetUp</string>
 
 </resources>
