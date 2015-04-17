@@ -32,6 +32,7 @@ public class feedJSONParser {
     private String manitoNumber = "0008675309";
     private SharedPreferences settings;
     private SharedPreferences.Editor editor;
+    private Boolean armed;
 
 
     public feedJSONParser(Context c){
@@ -63,6 +64,8 @@ public class feedJSONParser {
         HashMap<String, Object> event = null;
         String s_latestArm = "";
         Boolean b_latestArm = false;
+        Boolean lastArm = false;
+        Boolean alreadySetArm = false;
 
         // Taking each event, parses and adds to list object
         for (int i = 0; i < eventCount; i++) {
@@ -84,19 +87,34 @@ public class feedJSONParser {
                 }
 
                 if(!exists) {
-                    //Log.d(TAG, "dont have: " + event.get("name").toString());
-                    eventList.add(event);
+                    armed = settings.getBoolean("armState", false);
+                    Log.d(TAG, "last armed check: " + lastArm);
+                    if(event.get("name").toString().equals("Manito")){
+                        if(lastArm || armed){
+                            eventList.add(event);
+                        }
+                    }
+                    else{
+                        eventList.add(event);
+                    }
                 }
 
-                if(i == 0){
+
+                if(!event.get("name").toString().equals("Manito")) {
+                    lastArm = (event.get("b_armed").toString().equals("T"));
+                    Log.d(TAG, "new last arm: " + lastArm + " " + event.get("name").toString());
+                }
+
+                if(!event.get("name").toString().equals("Manito") && !alreadySetArm){
                     s_latestArm = event.get("armed").toString();
-                    Log.d(TAG, "latest arm: " + s_latestArm);
+                    //Log.d(TAG, "latest arm: " + s_latestArm);
                     if(s_latestArm.equals("Armed")){
                         b_latestArm = true;
                     }else{
                         b_latestArm = false;
                     }
                     editor.putBoolean("armState", b_latestArm).commit();
+                    alreadySetArm = true;
                 }
             } catch (JSONException e) {
                 Log.d(TAG, "in exception for hashmap ");
@@ -110,7 +128,6 @@ public class feedJSONParser {
     // Parsing the Event JSON object
     private HashMap<String, Object> getEvent(JSONObject jEvent) {
         //Log.d(TAG, "getEvent");
-
 
         HashMap<String, Object> event = new HashMap<String, Object>();
         String  m_name  = "";
@@ -189,6 +206,8 @@ public class feedJSONParser {
                 d_name = String.valueOf(R.drawable.manito_contact);
                 d_away = String.valueOf(R.drawable.alert);
                 m_away = "Alert";
+                m_arm = "";
+                d_arm = "";
 
             }else if(m_name.equals("You")){
                 d_name = String.valueOf(R.drawable.owner_contact);
@@ -198,6 +217,7 @@ public class feedJSONParser {
 
             event.put("timestamp", m_time);
             event.put("armed", m_arm);
+            event.put("b_armed", b_arm);
             //event.put("home", m_home);
             event.put("alert", m_alert);
             event.put("armed_img", d_arm);
@@ -236,7 +256,7 @@ public class feedJSONParser {
         i_hours += daylightSaving;
 
 
-        if(i_hours < 0){
+        if(i_hours <= 0){
             i_hours += 24;
             i_day = Integer.parseInt(time[1]) - 1;
         }

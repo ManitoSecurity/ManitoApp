@@ -168,12 +168,15 @@ public class CheckForAlert {
 
             Log.d(TAG, "last " + mlatestAlert + " new " + currenttime + " b_alert" + b_alert);
 
-            boolean isNewer = currenttime > (mlatestAlert + 100);
+            boolean isNewer = currenttime > (mlatestAlert + 1000);
+
 
             if(b_alert.equals("T") && isNewer){
-                Notification_Service mNotificationService = new Notification_Service(mContext);
-                mNotificationService.displayNotification();
                 editor.putLong("lastAlert", currenttime).commit();
+                if(settings.getBoolean("armState", false)) {
+                    Notification_Service mNotificationService = new Notification_Service(mContext);
+                    mNotificationService.displayNotification();
+                }
                 Log.d(TAG, "ALERT " + mlatestAlert);
             }
 
