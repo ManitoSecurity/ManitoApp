@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -87,6 +86,8 @@ public class SetUpWifi extends Activity {
         getActionBar().setIcon(
                 new ColorDrawable(getResources().getColor(android.R.color.transparent)));
 
+        getActionBar().setTitle("");
+
         Log.d(TAG, "got wifi manager");
         setupUI();
         if (!mainWifi.isWifiEnabled())
@@ -102,12 +103,6 @@ public class SetUpWifi extends Activity {
 
         //mainWifi.startScan();
     }
-
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 0, 0, "Refresh");
-        return super.onCreateOptionsMenu(menu);
-    }
-
 
     protected void onPause() {
         super.onPause();

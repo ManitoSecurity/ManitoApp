@@ -130,6 +130,8 @@ public final class SetUpBT extends Activity {
         getActionBar().setIcon(
                 new ColorDrawable(getResources().getColor(android.R.color.transparent)));
 
+        getActionBar().setTitle("");
+
         // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         this.registerReceiver(mBTReceiver, filter);
@@ -364,7 +366,7 @@ public final class SetUpBT extends Activity {
                     else{
                         if(!finishedReceiving) {
                             finishedReceiving = true;
-                            Toast.makeText(getApplicationContext(), "Successfully sent information", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Successfully set up!", Toast.LENGTH_SHORT).show();
                             mHandler.removeCallbacksAndMessages(null);
                             Log.d(TAG, "FINISHED C");
                             Finish();

@@ -22,6 +22,8 @@ public class PickSetUp extends Activity {
         new_setup = (Button) (findViewById(R.id.new_setup));
         join_setup = (Button) (findViewById(R.id.join_setup));
 
+        getActionBar().setTitle("");
+
         setButtonListeners();
     }
 

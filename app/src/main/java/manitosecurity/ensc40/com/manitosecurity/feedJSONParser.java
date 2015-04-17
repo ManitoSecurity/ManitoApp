@@ -69,12 +69,12 @@ public class feedJSONParser {
             try {
                 // Call getEvent with event JSON object to parse the event
                 event = getEvent((JSONObject) jEvents.get(i));
-                Log.d(TAG, "event name " + event.get("name").toString());
+                //Log.d(TAG, "event name " + event.get("name").toString());
 
                 checkLoop:
                 for(int j = 0; j < eventList.size(); j++){
                     if(eventList.get(j).containsValue(event.get("name").toString())){
-                        Log.d(TAG, "already have: " + event.get("name").toString());
+                        //Log.d(TAG, "already have: " + event.get("name").toString());
                         exists = true;
                         break checkLoop;
                     }
@@ -84,7 +84,7 @@ public class feedJSONParser {
                 }
 
                 if(!exists) {
-                    Log.d(TAG, "dont have: " + event.get("name").toString());
+                    //Log.d(TAG, "dont have: " + event.get("name").toString());
                     eventList.add(event);
                 }
 

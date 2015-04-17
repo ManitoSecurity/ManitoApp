@@ -1,5 +1,6 @@
 package manitosecurity.ensc40.com.manitosecurity;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -51,6 +52,13 @@ public class SetUpBTSimple extends Activity {
     // Shared Preferences
     private SharedPreferences settings;
 
+
+
+    /**
+     * Name of the connected device
+     */
+    private String mConnectedDeviceName = null;
+
     /**
      * String buffer for outgoing messages
      */
@@ -95,6 +103,8 @@ public class SetUpBTSimple extends Activity {
 
         getActionBar().setIcon(
                 new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+
+        getActionBar().setTitle("");
 
         // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -243,6 +253,37 @@ public class SetUpBTSimple extends Activity {
         }
     }
 
+    /**
+     * Updates the status on the action bar.
+     *
+     * @param resId a string resource ID
+     */
+    private void setStatus(int resId) {
+        if (null == this) {
+            return;
+        }
+        final ActionBar actionBar = this.getActionBar();
+        if (null == actionBar) {
+            return;
+        }
+        actionBar.setSubtitle(resId);
+    }
+
+    /**
+     * Updates the status on the action bar.
+     *
+     * @param subTitle status
+     */
+    private void setStatus(CharSequence subTitle) {
+        if (null == this) {
+            return;
+        }
+        final ActionBar actionBar = this.getActionBar();
+        if (null == actionBar) {
+            return;
+        }
+        actionBar.setSubtitle(subTitle);
+    }
 
     /**
      * The Handler that gets information back from the BTChat
@@ -254,50 +295,49 @@ public class SetUpBTSimple extends Activity {
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
                         case BTChat.STATE_CONNECTED:
+                            setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
                             Log.d(TAG, "CONNECTED!!! <3");
                             Toast.makeText(getApplicationContext(), "Connected!", Toast.LENGTH_LONG).show();
                             Finish();
                             break;
                         case BTChat.STATE_CONNECTING:
+                            setStatus(R.string.title_connecting);
                             break;
                         case BTChat.STATE_LISTEN:
                         case BTChat.STATE_NONE:
+                            setStatus(R.string.title_not_connected);
                             setAnimationMiddle(spin, mRefreshIcon, true);
                             break;
                     }
                     break;
                 case Constants.MESSAGE_WRITE:
+                    byte[] writeBuf = (byte[]) msg.obj;
+                    // construct a string from the buffer
+                    String writeMessage = new String(writeBuf);
                     break;
                 case Constants.MESSAGE_READ:
+                    break;
+                case Constants.MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
+                    if (null != this) {
+                        Toast.makeText(getApplicationContext(), "Connected to "
+                                + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 case Constants.MESSAGE_TOAST:
                     break;
                 case Constants.MESSAGE_LOST:
+                    Log.d(TAG, "SetUpBTLost!!!!");
+                    Log.d(TAG, "FINISHED LOST");
+                    if(!finishedReceiving) {
+                        Finish();
+                    }
                     break;
             }
         }
     };
 
-    private void SendWifiSSID(){
-        WifiName = settings.getString("WiFiName", "");
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                sendMessage(WifiName+"#");
-                Log.d(TAG, "sent " + WifiName);
-            }
-        }, 2000);
-
-    }
-    private void SendWifiPassword(){
-        WifiPW = settings.getString("WiFiPassword", "");
-        WifiSecure = settings.getBoolean("WiFiProtected", false);
-
-        if(WifiSecure){
-            sendMessage(WifiPW+"#");
-        }
-    }
 
     private void Finish(){
         Log.d(TAG, "FINISHED");
