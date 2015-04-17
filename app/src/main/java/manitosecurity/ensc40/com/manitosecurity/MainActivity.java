@@ -146,6 +146,7 @@ public class MainActivity extends Activity {
 
     private void setUpFinished(){
         editor.putBoolean("setUp", true).commit();
+        Toast.makeText(getApplicationContext(), "Press the lock at the top to toggle armed and disarmed.", Toast.LENGTH_LONG);
     }
 
     private void refreshFeed(){
